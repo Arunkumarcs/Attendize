@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Event;
-use App\Models\EventImage;
-use App\Models\Organiser;
-use Auth;
-use Illuminate\Http\Request;
-use Image;
 use Log;
+use Auth;
+use Image;
 use Validator;
+use App\Models\Event;
+use App\Models\Organiser;
+use App\Models\EventImage;
+use Illuminate\Http\Request;
+use Spatie\GoogleCalendar\Event as GCEvent;
 
 class EventController extends MyBaseController
 {
@@ -48,7 +49,7 @@ class EventController extends MyBaseController
         }
 
         $event->title = $request->get('title');
-        $event->description = strip_tags($request->get('description'));
+        $event->description = prepare_markdown($request->get('description'));
         $event->start_date = $request->get('start_date');
 
         /*
@@ -113,7 +114,7 @@ class EventController extends MyBaseController
             }
 
             $organiser->name = $request->get('organiser_name');
-            $organiser->about = $request->get('organiser_about');
+            $organiser->about = prepare_markdown($request->get('organiser_about'));
             $organiser->email = $request->get('organiser_email');
             $organiser->facebook = $request->get('organiser_facebook');
             $organiser->twitter = $request->get('organiser_twitter');
@@ -138,13 +139,12 @@ class EventController extends MyBaseController
             $event->organiser_fee_percentage = $defaults->organiser_fee_percentage;
             $event->pre_order_display_message = $defaults->pre_order_display_message;
             $event->post_order_display_message = $defaults->post_order_display_message;
-            $event->offline_payment_instructions = $defaults->offline_payment_instructions;
+            $event->offline_payment_instructions = prepare_markdown($defaults->offline_payment_instructions);
             $event->enable_offline_payments = $defaults->enable_offline_payments;
             $event->social_show_facebook = $defaults->social_show_facebook;
             $event->social_show_linkedin = $defaults->social_show_linkedin;
             $event->social_show_twitter = $defaults->social_show_twitter;
             $event->social_show_email = $defaults->social_show_email;
-            $event->social_show_googleplus = $defaults->social_show_googleplus;
             $event->social_show_whatsapp = $defaults->social_show_whatsapp;
             $event->is_1d_barcode_enabled = $defaults->is_1d_barcode_enabled;
             $event->ticket_border_color = $defaults->ticket_border_color;
@@ -222,8 +222,9 @@ class EventController extends MyBaseController
         $event->is_live = $request->get('is_live');
         $event->currency_id = $request->get('currency_id');
         $event->title = $request->get('title');
-        $event->description = strip_tags($request->get('description'));
+        $event->description = prepare_markdown($request->get('description'));
         $event->start_date = $request->get('start_date');
+        $event->google_tag_manager_code = $request->get('google_tag_manager_code');
 
         /*
          * If the google place ID is the same as before then don't update the venue
@@ -265,6 +266,7 @@ class EventController extends MyBaseController
         }
 
         $event->end_date = $request->get('end_date');
+        $event->event_image_position = $request->get('event_image_position');
 
         if ($request->get('remove_current_image') == '1') {
             EventImage::where('event_id', '=', $event->id)->delete();
@@ -340,5 +342,21 @@ class EventController extends MyBaseController
                 'error' => trans("Controllers.image_upload_error"),
             ]);
         }
+    }
+
+    /**
+     * Puplish event and redirect
+     * @param  Integer|false $event_id
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function postMakeEventLive($event_id = false) {
+        $event = Event::scope()->findOrFail($event_id);
+        $event->is_live = 1;
+        $event->save();
+        \Session::flash('message', trans('Event.go_live'));
+
+        return redirect()->action(
+            'EventDashboardController@showDashboard', ['event_id' => $event_id]
+        );
     }
 }

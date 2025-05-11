@@ -28,8 +28,8 @@
 @stop
 
 @section('head')
-    {!! HTML::script('https://maps.googleapis.com/maps/api/js?libraries=places&key='.env("GOOGLE_MAPS_GEOCODING_KEY")) !!}
-    {!! HTML::script('vendor/geocomplete/jquery.geocomplete.min.js') !!}
+    {!! Html::script('https://maps.googleapis.com/maps/api/js?libraries=places&key='.config("attendize.google_maps_geocoding_key")) !!}
+    {!! Html::script('vendor/geocomplete/jquery.geocomplete.min.js') !!}
     <script>
         $(function () {
 
@@ -245,7 +245,7 @@
                                         <td>{{ $affiliate->visits }}</td>
                                         <td>{{ $affiliate->tickets_sold }}</td>
                                         <td>{{ money($affiliate->sales_volume, $event->currency) }}</td>
-                                        <td>{{ $affiliate->updated_at->format(env("DEFAULT_DATETIME_FORMAT")) }}</td>
+                                        <td>{{ $affiliate->updated_at->format(config("attendize.default_datetime_format")) }}</td>
                                     </tr>
                                 @endforeach
                                 </tbody>
@@ -305,10 +305,6 @@
                         <div class="custom-checkbox mb5">
                             {!! Form::checkbox('social_show_email', 1, $event->social_show_email, ['id' => 'social_show_email', 'data-toggle' => 'toggle']) !!}
                             {!! Form::label('social_show_email', trans("Social.email")) !!}
-                        </div>
-                        <div class="custom-checkbox mb5">
-                            {!! Form::checkbox('social_show_googleplus', 1, $event->social_show_googleplus, ['id' => 'social_show_googleplus', 'data-toggle' => 'toggle']) !!}
-                            {!! Form::label('social_show_googleplus', trans("Social.g+")) !!}
                         </div>
                         <div class="custom-checkbox mb5">
                             {!! Form::checkbox('social_show_linkedin', 1, $event->social_show_linkedin, ['id' => 'social_show_linkedin', 'data-toggle' => 'toggle']) !!}
@@ -527,7 +523,7 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 {!! Form::label('ticket_border_color', trans("Ticket.ticket_border_color"), ['class'=>'control-label required ']) !!}
-                                {!!  Form::input('text', 'ticket_border_color', Input::old('ticket_border_color'),
+                                {!!  Form::input('text', 'ticket_border_color', old('ticket_border_color'),
                                                             [
                                                             'class'=>'form-control colorpicker',
                                                             'placeholder'=>'#000000'
@@ -537,7 +533,7 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 {!! Form::label('ticket_bg_color', trans("Ticket.ticket_background_color"), ['class'=>'control-label required ']) !!}
-                                {!!  Form::input('text', 'ticket_bg_color', Input::old('ticket_bg_color'),
+                                {!!  Form::input('text', 'ticket_bg_color', old('ticket_bg_color'),
                                                             [
                                                             'class'=>'form-control colorpicker',
                                                             'placeholder'=>'#FFFFFF'
@@ -547,7 +543,7 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 {!! Form::label('ticket_text_color', trans("Ticket.ticket_text_color"), ['class'=>'control-label required ']) !!}
-                                {!!  Form::input('text', 'ticket_text_color', Input::old('ticket_text_color'),
+                                {!!  Form::input('text', 'ticket_text_color', old('ticket_text_color'),
                                                             [
                                                             'class'=>'form-control colorpicker',
                                                             'placeholder'=>'#000000'
@@ -557,7 +553,7 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 {!! Form::label('ticket_sub_text_color', trans("Ticket.ticket_sub_text_color"), ['class'=>'control-label required ']) !!}
-                                {!!  Form::input('text', 'ticket_sub_text_color', Input::old('ticket_border_color'),
+                                {!!  Form::input('text', 'ticket_sub_text_color', old('ticket_border_color'),
                                                             [
                                                             'class'=>'form-control colorpicker',
                                                             'placeholder'=>'#000000'
